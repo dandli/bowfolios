@@ -3,6 +3,7 @@ import BaseCollection from '/imports/api/base/BaseCollection';
 import { Interests } from '/imports/api/interest/InterestCollection';
 import { check } from 'meteor/check';
 import { Meteor } from 'meteor/meteor';
+import { _ } from 'meteor/underscore';
 
 /** @module Profile */
 
@@ -52,21 +53,31 @@ class ProfileCollection extends BaseCollection {
    * if one or more interests are not defined, or if github, facebook, and instagram are not URLs.
    * @returns The newly created docID.
    */
-  define({ firstName = '', lastName = '', username, bio = '', interests, picture = '', title = '', github = '',
-      facebook = '', instagram = '' }) {
+  define({
+           firstName = '', lastName = '', username, bio = '', interests, picture = '', title = '', github = '',
+           facebook = '', instagram = '',
+         }) {
     // make sure required fields are OK.
-    const checkPattern = { firstName: String, lastName: String, username: String, bio: String, picture: String,
-      title: String };
+    const checkPattern = {
+      firstName: String, lastName: String, username: String, bio: String, picture: String,
+      title: String,
+    };
     check({ firstName, lastName, username, bio, picture, title }, checkPattern);
 
     if (this.find({ username }).count() > 0) {
       throw new Meteor.Error(`${username} is previously defined in another Profile`);
     }
 
+    if (interests.length !== _.uniq(interests).length) {
+      throw new Meteor.Error(`${interests} is a duplicate`);
+    }
+
     // Throw an error if any of the passed Interest names are not defined.
     Interests.assertNames(interests);
-    return this._collection.insert({ firstName, lastName, username, bio, interests, picture, title, github,
-      facebook, instagram });
+    return this._collection.insert({
+      firstName, lastName, username, bio, interests, picture, title, github,
+      facebook, instagram,
+    });
   }
 
   /**

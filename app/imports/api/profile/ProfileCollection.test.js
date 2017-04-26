@@ -49,7 +49,9 @@ if (Meteor.isServer) {
       expect(doc.facebook).to.equal(facebook);
       expect(doc.instagram).to.equal(instagram);
       // Check that multiple definitions with the same email address fail
-      expect(function foo() { Profiles.define(defineObject); }).to.throw(Error);
+      expect(function foo() {
+        Profiles.define(defineObject);
+      }).to.throw(Error);
       // Check that we can dump and restore a Profile.
       const dumpObject = Profiles.dumpOne(docID);
       Profiles.removeIt(docID);
@@ -57,6 +59,30 @@ if (Meteor.isServer) {
       docID = Profiles.restoreOne(dumpObject);
       expect(Profiles.isDefined(docID)).to.be.true;
       Profiles.removeIt(docID);
+    });
+
+    it('#define (illegal interest)', function test() {
+      const illegalInterests = ['foo'];
+      const username2 = 'philipmjohnson';
+      const defineObject2 = {
+        firstName, lastName, username2, bio, illegalInterests, picture, title,
+        github, facebook, instagram,
+      };
+      expect(function foo() {
+        Profiles.define(defineObject2);
+      }).to.throw(Error);
+    });
+
+    it('#define (duplicate interest)', function testing() {
+      const duplicateInterests = ['foo', 'foo'];
+      const username3 = 'philipmjohnson';
+      const defineObject3 = {
+        firstName, lastName, username3, bio, duplicateInterests, picture, title,
+        github, facebook, instagram,
+      };
+      expect(function food() {
+        Profiles.define(defineObject3);
+      }).to.throw(Error);
     });
   });
 }
